@@ -4,18 +4,18 @@ import os
 import requests 
 import json
 import tweepy
-#get current date
-#get current date
+
+# authentication of access token and secret
 consumer_key = 'consumer key'
 consumer_secret = 'consumer secrets'
 access_token = 'access token'
 access_token_secret = 'access token secret'
-# authentication of consumer key and secret
+
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-  
-# authentication of access token and secret
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
+
+#get current date
 def getDate(): 
     current_time = datetime.datetime.now()
     day = current_time.day
@@ -24,6 +24,7 @@ def getDate():
     date = "{dd}-{mm}-{yyyy}".format(dd=day,mm=month,yyyy=year)
     time.sleep(900) # set time interval for checking vaccine availability, default time : 15 minutes
     return date
+#get name of district
 def getDistrictID(st_id, lookout_district): 
     district_name = ''
     url = "https://cdn-api.co-vin.in/api/v2/admin/location/districts/{st}".format(st = st_id)
@@ -38,12 +39,16 @@ def getDistrictID(st_id, lookout_district):
         return (district_name)
     except Exception as e:
         print(e)
+        
+        
+#get vaccine slot details 
 def getCOWIN(date,district_id):
     url = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id={district_id}&date={date}".format(district_id = district_id, date = date)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36' }
     response = requests.get(url,headers=headers)
     return json.loads(response.text)
 
+#check slot availability
 def checkAvailability(payload):    
     if('centers' in payload.keys()):
         length = len(payload['centers'])
