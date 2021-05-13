@@ -6,6 +6,9 @@ import json
 import tweepy
 from PIL import Image, ImageDraw, ImageFont
 
+# telegram authentication token
+token = 'your bot token'
+channel_id = 'your channel name'
 # authentication of access token and secret
 consumer_key = 'consumer key'
 consumer_secret = 'consumer secrets'
@@ -22,8 +25,8 @@ api = tweepy.API(auth)
 font = ImageFont.truetype('font/Roboto-Bold.ttf', size=80)
 avail_date_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=40)
 count_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
-vaccine_font= ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
-dist_font =ImageFont.truetype('font/Roboto-Bold.ttf', size=40)
+vaccine_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
+dist_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=40)
 
 # get current date
 
@@ -87,49 +90,59 @@ def checkAvailability(payload):
 
     return output
 
+
 while True:
     st_id = 17
-    lookout_district = 296 # distict id which you want to keep an eye on vaccine availability
+    lookout_district = 296  # distict id which you want to keep an eye on vaccine availability
     date = getDate()
     district_id = lookout_district
     dist_name = getDistrictID(st_id, lookout_district)
     payload = getCOWIN(date, district_id)
     responses = checkAvailability(payload)
     for key in responses:
-        status = "Cowin Vaccine slot available at #" + dist_name + " ("+key['date_avail']+") \n #getvaccinated #cowin  #CrushTheCurve \n posted by:#cowintrackerbot"
-        image = Image.open('images/cowin.jpg') 
+        status = "Cowin Vaccine slot available at #" + dist_name + \
+            " ("+key['date_avail'] + \
+            ") \n #getvaccinated #cowin  #CrushTheCurve \n posted by:#cowintrackerbot"
+        image = Image.open('images/cowin.jpg')
         draw = ImageDraw.Draw(image)
-        (x, y) = (122,170)
+        (x, y) = (122, 170)
         center_name = key['available_center']
-        color = 'rgb(255, 255, 255)' # white
+        color = 'rgb(255, 255, 255)'  # white
         draw.text((x, y), center_name, fill=color, font=font)
 
-        (x, y) = (1184,65)
+        (x, y) = (1184, 65)
         avail_date = key['date_avail']
-        color = 'rgb(0, 0, 0)' # black color
+        color = 'rgb(0, 0, 0)'  # black color
         draw.text((x, y), avail_date, fill=color, font=avail_date_font)
 
-        (x,y) = (203,363)
+        (x, y) = (203, 363)
         dose = str(key['capacity'])
-        color = 'rgb(0, 0, 0)' # black color
+        color = 'rgb(0, 0, 0)'  # black color
         draw.text((x, y), dose, fill=color, font=count_font)
 
-        (x,y) = (197,492)
+        (x, y) = (197, 492)
         age_lim = "45"
-        color = 'rgb(0, 0, 0)' # black color
+        color = 'rgb(0, 0, 0)'  # black color
         draw.text((x, y), age_lim, fill=color, font=count_font)
-        
 
-        (x,y) = (382,609)
+        (x, y) = (382, 609)
         vaccine_name = key['vaccine']
-        color = 'rgb(139,0,0)' # maroon color
+        color = 'rgb(139,0,0)'  # maroon color
         draw.text((x, y), vaccine_name, fill=color, font=vaccine_font)
 
-        (x,y) = (1054,134)
+        (x, y) = (1054, 134)
         dist_names = dist_name
-        color = 'rgb(48,8,8)' # black color
+        color = 'rgb(48,8,8)'  # black color
         draw.text((x, y), dist_names, fill=color, font=dist_font)
 
         image.save('images/optimized.png', optimize=True, quality=20)
         img_path = 'images/optimized.png'
-        api.update_with_media(img_path,status)
+        api.update_with_media(img_path, status)
+
+        # telegram post section goes here
+        cap_text = str(key['capacity']) + " doses of "+key['vaccine'] + \
+            " available at "+key['available_center']+" %23"+dist_name
+        tel_files = {'photo': open(img_path, 'rb')}
+        resps = requests.post('https://api.telegram.org/bot'+token+'/sendPhoto?chat_id=@{}'.format(
+            channel_id)+'&caption={}'.format(cap_text), files=tel_files)
+        print(resps)
