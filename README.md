@@ -6,6 +6,12 @@
 
   - Automatically checks vaccine availability in every 15 minutes and post updates on twitter
   - See HTML in the right
+ 
+ ## Features
+
+- This bot will generate images based on the vaccine availability 
+- Auto tweet the auto generated image in twiter feed
+- Auto post vaccine availability to telegram Channel/group
   
 
 # Not a Geek?!
