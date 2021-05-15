@@ -98,61 +98,70 @@ while True:
     st_id = 17  # State id which you want to keep an eye on vaccine availability
     lookout_district = 300  # distict id which you want to keep an eye on vaccine availability
     date = getDate()
-    district_id = lookout_district
-    dist_name = getDistrictID(st_id, lookout_district)
-    payload = getCOWIN(date, district_id)
-    responses = checkAvailability(payload)
-    for key in responses:
-        status = "Cowin Vaccine slot available at #" + dist_name + \
-            " ("+key['date_avail'] + \
-            ") \n #getvaccinated #cowin  #CrushTheCurve \n posted by:#cowintrackerbot"
-        image = Image.open('images/cowin.jpg')
-        draw = ImageDraw.Draw(image)
-        (x, y) = (16, 92)
-        center_name = key['available_center']
-        color = 'rgb(255, 255, 255)'  # white
-        draw.text((x, y), center_name, fill=color, font=font)
+    try:
+        district_id = lookout_district
+        dist_name = getDistrictID(st_id, lookout_district)
+        payload = getCOWIN(date, district_id)
+        responses = checkAvailability(payload)
+        for key in responses:
+            status = "Cowin Vaccine slot available at #" + dist_name + \
+                " ("+key['date_avail'] + \
+                ") \n #getvaccinated #cowin  #CrushTheCurve \n posted by:#cowintrackerbot"
+            image = Image.open('images/cowin.jpg')
+            draw = ImageDraw.Draw(image)
+            (x, y) = (16, 92)
+            center_name = key['available_center']
+            color = 'rgb(255, 255, 255)'  # white
+            draw.text((x, y), center_name, fill=color, font=font)
 
-        (x, y) = (1140, 21)
-        avail_date = key['date_avail']
-        color = 'rgb(0, 0, 0)'  # black color
-        draw.text((x, y), avail_date, fill=color, font=avail_date_font)
+            (x, y) = (1140, 21)
+            avail_date = key['date_avail']
+            color = 'rgb(0, 0, 0)'  # black color
+            draw.text((x, y), avail_date, fill=color, font=avail_date_font)
 
-        (x, y) = (47, 271)
-        dose = str(key['capacity'])
-        color = 'rgb(0, 0, 0)'  # black color
-        draw.text((x, y), dose, fill=color, font=count_font)
+            (x, y) = (47, 271)
+            dose = str(key['capacity'])
+            color = 'rgb(0, 0, 0)'  # black color
+            draw.text((x, y), dose, fill=color, font=count_font)
 
-        (x, y) = (43, 398)
-        age_lim = "45"
-        color = 'rgb(0, 0, 0)'  # black color
-        draw.text((x, y), age_lim, fill=color, font=count_font)
+            (x, y) = (43, 398)
+            age_lim = "45"
+            color = 'rgb(0, 0, 0)'  # black color
+            draw.text((x, y), age_lim, fill=color, font=count_font)
 
-        (x, y) = (607, 396)
-        vaccine_name = key['vaccine']
-        color = 'rgb(139,0,0)'  # maroon color
-        draw.text((x, y), vaccine_name, fill=color, font=vaccine_font)
+            (x, y) = (607, 396)
+            vaccine_name = key['vaccine']
+            color = 'rgb(139,0,0)'  # maroon color
+            draw.text((x, y), vaccine_name, fill=color, font=vaccine_font)
 
-        (x, y) = (611, 263)
-        dist_names = dist_name
-        color = 'rgb(7,38,56)'  # black color
-        draw.text((x, y), dist_names, fill=color, font=dist_font)
+            (x, y) = (611, 263)
+            dist_names = dist_name
+            color = 'rgb(7,38,56)'  # black color
+            draw.text((x, y), dist_names, fill=color, font=dist_font)
 
-        (x, y) = (535, 519)
-        slot_avail = '\n'.join(key['slots'])
-        color = 'rgb(7,38,56)'  # black color
-        draw.text((x, y), slot_avail, fill=color, font=slot_font)
+            (x, y) = (535, 519)
+            slot_avail = '\n'.join(key['slots'])
+            color = 'rgb(7,38,56)'  # black color
+            draw.text((x, y), slot_avail, fill=color, font=slot_font)
 
-        image.save('images/optimized.png', optimize=True, quality=20)
-        img_path = 'images/optimized.png'
-        # Twitter post section goes here
-        api.update_with_media(img_path, status)
+            image.save('images/optimized.png', optimize=True, quality=20)
+            img_path = 'images/optimized.png'
+            # Twitter post section goes here
+            try:
+                api.update_with_media(img_path, status)
+            except tweepy.TweepError as e:
+                print("Tweepy Error: {}".format(e))
 
-        # telegram post section goes here
-        cap_text = str(key['capacity']) + " doses of "+key['vaccine'] + \
-            " available at "+key['available_center'] + \
-            " %23"+dist_name+" ("+avail_date+")"
-        tel_files = {'photo': open(img_path, 'rb')}
-        requests.post('https://api.telegram.org/bot'+token+'/sendPhoto?chat_id=@{}'.format(
-            channel_id)+'&caption={}'.format(cap_text), files=tel_files)
-        print(center_name)
+            # telegram post section goes here
+            cap_text = str(key['capacity']) + " doses of "+key['vaccine'] + \
+                " available at "+key['available_center'] + \
+                " %23"+dist_name+" ("+avail_date+")"
+            tel_files = {'photo': open(img_path, 'rb')}
+            try:
+                requests.post('https://api.telegram.org/bot'+token+'/sendPhoto?chat_id=@{}'.format(
+                    channel_id)+'&caption={}'.format(cap_text), files=tel_files)
+            except:
+                print("telegram updation error occured")
+            print(center_name)
+    except:
+        print('cowin api error')
