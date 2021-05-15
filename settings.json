@@ -1,0 +1,8 @@
+{
+    "telegramToken": "<TELEGRAM_AUTH_TOKEN>",    
+    "channelId": "<TELEGRAM_CHANNEL_ID>",
+    "consumerKey": "<TWITTER_CONSUMER_KEY>",
+    "consumerSecret": "<TWITTER_CONSUMER_SECRET>",
+    "twitterAccessToken": "<TWITTER_ACCESS_TOKEN>",
+    "accessTokenSecret" : "<TWITTER_ACCESS_TOKEN_SECRET>"
+  }
