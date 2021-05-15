@@ -18,6 +18,7 @@
 
   - don't worry keep an eye on [@adarshvs_](https://twitter.com/adarshvs_)'s profile
   - This bot will post updates of vaccine free slot availability in kerala to [@adarshvs_](https://twitter.com/adarshvs_)
+  - Also This bot will post updates of vaccine free slot availability in kerala to [CoWIN vaccine tracker](https://t.me/cowin_tracker) telegram channel. @cowin_tracker
 
 
 ### Installation
