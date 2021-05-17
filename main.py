@@ -165,3 +165,4 @@ while True:
             print(center_name)
     except:
         print('cowin api error')
+        time.sleep(900)
