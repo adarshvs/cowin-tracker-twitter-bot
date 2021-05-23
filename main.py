@@ -30,10 +30,12 @@ avail_date_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=40)
 count_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
 vaccine_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
 dist_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=50)
-slot_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=50)
-
+slot_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=40)
+type_font = ImageFont.truetype('font/Roboto-Bold.ttf', size=60)
 
 # get current date
+
+
 def getDate():
     current_time = datetime.datetime.now()
     day = current_time.day
@@ -88,7 +90,12 @@ def checkAvailability(payload):
                                'capacity': payload['centers'][i]['sessions'][j]['available_capacity'],
                                'vaccine': payload['centers'][i]['sessions'][j]['vaccine'],
                                'date_avail': payload['centers'][i]['sessions'][j]['date'],
-                               'slots': payload['centers'][i]['sessions'][j]['slots']}
+                               'slots': payload['centers'][i]['sessions'][j]['slots'],
+                               'min_age': payload['centers'][i]['sessions'][j]['min_age_limit'],
+                               'vaccine_type': payload['centers'][i]['fee_type'],
+                               'capacity1': payload['centers'][i]['sessions'][j]['available_capacity_dose1'],
+                               'capacity2': payload['centers'][i]['sessions'][j]['available_capacity_dose2']
+                               }
                         output.append(res)
 
     return output
@@ -96,7 +103,7 @@ def checkAvailability(payload):
 
 while True:
     st_id = 17  # State id which you want to keep an eye on vaccine availability
-    lookout_district = 300  # distict id which you want to keep an eye on vaccine availability
+    lookout_district = 305  # distict id which you want to keep an eye on vaccine availability
     date = getDate()
     try:
         district_id = lookout_district
@@ -109,40 +116,56 @@ while True:
                 ") \n #getvaccinated #cowin  #CrushTheCurve \n posted by:#cowintrackerbot"
             image = Image.open('images/cowin.jpg')
             draw = ImageDraw.Draw(image)
-            (x, y) = (16, 92)
+
+            (x, y) = (235, 85)
             center_name = key['available_center']
             color = 'rgb(255, 255, 255)'  # white
             draw.text((x, y), center_name, fill=color, font=font)
 
-            (x, y) = (1140, 21)
+            (x, y) = (1276, 13)
             avail_date = key['date_avail']
-            color = 'rgb(0, 0, 0)'  # black color
+            color = 'rgb(211,223,85)'  # black color
             draw.text((x, y), avail_date, fill=color, font=avail_date_font)
 
-            (x, y) = (47, 271)
+            (x, y) = (1004, 236)
             dose = str(key['capacity'])
-            color = 'rgb(0, 0, 0)'  # black color
+            color = 'rgb(7,38,56)'  # black color
             draw.text((x, y), dose, fill=color, font=count_font)
 
-            (x, y) = (43, 398)
-            age_lim = "45"
-            color = 'rgb(0, 0, 0)'  # black color
+            (x, y) = (1004, 324)
+            dose1 = str(key['capacity1'])
+            color = 'rgb(7,38,56)'  # black color
+            draw.text((x, y), dose1, fill=color, font=count_font)
+
+            (x, y) = (1424, 324)
+            dose2 = str(key['capacity2'])
+            color = 'rgb(7,38,56)'  # black color
+            draw.text((x, y), dose2, fill=color, font=count_font)
+
+            (x, y) = (1004, 400)
+            age_lim = str(key['min_age'])
+            color = 'rgb(7,38,56)'  # black color
             draw.text((x, y), age_lim, fill=color, font=count_font)
 
-            (x, y) = (607, 396)
+            (x, y) = (1004, 487)
             vaccine_name = key['vaccine']
-            color = 'rgb(139,0,0)'  # maroon color
+            color = 'rgb(211,223,85)'  # maroon color
             draw.text((x, y), vaccine_name, fill=color, font=vaccine_font)
 
-            (x, y) = (611, 263)
+            (x, y) = (1004, 572)
             dist_names = dist_name
             color = 'rgb(7,38,56)'  # black color
             draw.text((x, y), dist_names, fill=color, font=dist_font)
 
-            (x, y) = (535, 519)
+            (x, y) = (1004, 647)
             slot_avail = '\n'.join(key['slots'])
             color = 'rgb(7,38,56)'  # black color
             draw.text((x, y), slot_avail, fill=color, font=slot_font)
+
+            (x, y) = (1404, 486)
+            type_vaccine = str(key['vaccine_type'])
+            color = 'rgb(211,223,85)'  # black color
+            draw.text((x, y), type_vaccine, fill=color, font=type_font)
 
             image.save('images/optimized.png', optimize=True, quality=20)
             img_path = 'images/optimized.png'
@@ -162,7 +185,6 @@ while True:
                     channel_id)+'&caption={}'.format(cap_text), files=tel_files)
             except:
                 print("telegram updation error occured")
-            print(center_name)
+            print(center_name+' doses ' + dose1 + ' and ' + dose2)
     except:
         print('cowin api error')
-        time.sleep(900)
